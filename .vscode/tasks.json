@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+			
+            "label": "Build All C++ Files",
+            "type": "shell",
+            "command": "C:/mingw64/bin/g++.exe",
+            "args": [
+                "${workspaceFolder}/*.cpp",
+                "-g",
+                "-o",
+                "${workspaceFolder}/main.exe"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Compile all C++ files in the folder automatically"
+        }
+    ]
+}
