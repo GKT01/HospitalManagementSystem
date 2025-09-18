@@ -9,8 +9,9 @@ using namespace std;
 class Patient {
     public:
         Patient();
-        Patient(std::string name, string illness, int age, int id);
-    protected:
+        Patient(string name, string illness, int age, int id,int responsibleDoctorID);
+    //protected:
+        int patientResponsibleID;
         string patientName;
         string patientIllness;
         int patientAge;

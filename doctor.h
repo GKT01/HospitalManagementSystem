@@ -12,7 +12,7 @@ class Doctor
         Doctor();
         Doctor(string name, string specialty, int age, int id);
         
-    protected:
+    //protected:
         string doctorName;
         string doctorSpecialty;
         int doctorAge;

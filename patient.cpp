@@ -7,9 +7,10 @@ Patient::Patient(){
     patientID = -1;
 }
 
-Patient::Patient(string name, string illness, int age, int id){
+Patient::Patient(string name, string illness, int age, int id,int responsibleDoctorID){
     patientName = name;
     patientIllness = illness;
     patientAge = age;
     patientID = id;
+    patientResponsibleID = responsibleDoctorID;
 }
