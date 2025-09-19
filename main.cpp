@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 
+#include <fstream>
+#include <sstream> // string stream, allows us to get one line
+
 #include "patient.h"
 #include "doctor.h"
 
@@ -10,15 +13,18 @@
 
 using namespace std;
 
-Patient addPatient(int *patientID, Doctor doctors[], int lim);
-Doctor addDoctor(int *doctorID);
+Patient addPatient(int *patientID, fstream &patient_file, fstream &doctor_file);
+Doctor addDoctor(int *doctorID, fstream &doctor_file);
 
-void showMyPatients(Doctor doctors[], Patient patients[], int lim);
+void showMyPatients(istream &patient_file, istream &doctor_file);
 
-int listDoctor(Doctor doctors[], int lim, int selectDoctor);
-int RemoveDoctor(Doctor doctors[], int lim);
+int listDoctor(int selectDoctor, istream &doctor_file);
+int RemoveDoctor(Doctor doctors[], int lim, fstream &doctor_file);
 
 int main(int argc, char** argv){
+    fstream patient_file("patient.txt", ios::app);
+    fstream doctor_file("doctor.txt", ios::app);
+    
     int index{};
     int index2{};
 
@@ -35,14 +41,17 @@ int main(int argc, char** argv){
     cout << "Welcome To Hospital, Enter 1 if you are a patient, 2 if you are a doctor,"
     << "3 if you are Admin, 4 to Quit" 
     << endl;
+    // add see my doctor cauze im the patient
     cin >> index;
 
     switch (index){
     case 1:
-        patientArray[patientID] = addPatient(&patientID, doctorArray, LIM);
+        // Add if loop that if array of patient array is more than 100 it stopts adding until
+        // program restarts (for txt file)
+        patientArray[patientID] = addPatient(&patientID, patient_file, doctor_file);
         break;
     case 2:
-        showMyPatients(doctorArray, patientArray, LIM);
+        showMyPatients(patient_file, doctor_file);
         break;
     case 3:
         while( index2 != 3){
@@ -50,14 +59,16 @@ int main(int argc, char** argv){
         << ",To exit enter 4" << endl;
         cin >> index2;
         if(index2 == 1){
-            doctorArray[doctorID] = addDoctor(&doctorID);
+            // Add if loop that if array of doctor array is more than 100 it stopts adding until
+            // program restarts (for txt file)
+            doctorArray[doctorID] = addDoctor(&doctorID, doctor_file);
         }
         else if(index == 2){
-            int doctor_id_to_remove = RemoveDoctor(doctorArray, LIM);
+            int doctor_id_to_remove = RemoveDoctor(doctorArray, LIM, doctor_file);
             doctorArray[doctor_id_to_remove] = Doctor();
         }
         else if(index == 3){
-            listDoctor(doctorArray, LIM, NO_SELECT);
+            listDoctor(NO_SELECT, doctor_file);
         }
         else if (index == 4){
             cout << "Quitting Admin options.." << endl;
@@ -81,50 +92,79 @@ int main(int argc, char** argv){
     return 0;
 }
 
-int RemoveDoctor(Doctor doctors[], int lim){
+int RemoveDoctor(Doctor doctors[], int lim, fstream &doctor_file){ // change this
     int doctorID{-1};
 
-    listDoctor(doctors, LIM, NO_SELECT);
+    listDoctor(NO_SELECT, doctor_file);
 
-    cout << "Enter DoctorID to remove the Doctor: ";
+    cout << "Please make sure the Doctor has no patient, "
+    << "Enter DoctorID to remove the Doctor: ";
     cin >> doctorID;
 
     return doctorID;
 }
 
-void showMyPatients(Doctor doctors[], Patient patients[], int lim){
+void showMyPatients(istream &patient_file, istream &doctor_file){
     string doctorName;
-    int doctorFound{-1};
+    string doctorNameCheck;
+
+    string firstLineCheck;
+    string extractLine;
+
+    int doctorIDCheck;
+    int patientResponsibleID;
+    
+    int doctorFound;
 
     cout << "Hello Mr./Mrs. : ";
     getline(cin >> ws, doctorName);
 
-    for(int i = 0; i < LIM; i++){
-        if(doctors[i].doctorName == doctorName){
-            doctorFound = doctors[i].doctorID;
-            break;
+    doctor_file.seekg(0, ios::beg); // gets file to beginning to red g = read
+    while(getline(doctor_file, firstLineCheck)){ // loops for every line
+        if(firstLineCheck.empty())
+            cout << "No Doctor Found!" << endl; // any doctor at all
+        else{
+            stringstream ss(firstLineCheck);
+            getline(ss, extractLine, ',');
+            doctorNameCheck = extractLine; // we extract doctors name
+
+            while(getline(ss, extractLine, ',')){ // we extracts doctors id, loops for one line because i take only one line
+                stringstream(extractLine) >> doctorIDCheck;
+                if(doctorName == doctorNameCheck){ 
+                    doctorFound = doctorIDCheck;
+                    break;
+                }
+            }
         }
     }
     
-    cout << "Here is your Patients: ";
-    for(int j = 0; j < LIM; j++){
-        if(patients[j].patientResponsibleID == doctorFound)
-            cout << "Patient Name: "<<patients[j].patientName
-            << ", Illness: " << patients[j].patientIllness
-            << endl;
+    patient_file.seekg(0, ios::beg); // gets file to beginning to read g = read
+    cout << "Here is your Patients: " << endl;
+    while(getline(patient_file, firstLineCheck)){ // loop for all patients
+        stringstream ss(firstLineCheck);
+        while(getline(ss, extractLine, ',')){ // we extracts patientsResponsibleDoctor id
+        stringstream(extractLine) >> patientResponsibleID;
+        if(doctorFound == patientResponsibleID){ // check for doctors id and patientResponsibleID
+                cout << firstLineCheck << endl;
+            }
+        }
     }
 }
 
-int listDoctor(Doctor doctors[], int lim, int selectDoctor){
+int listDoctor(int selectDoctor, istream &doctor_file){
     int i = -1;
-    for(int i = 0; i < LIM; i++){
-        if(doctors[i].doctorName != "None")
-            cout << "Name: "<<doctors[i].doctorName
-            << ",Specialty: " << doctors[i].doctorSpecialty
-            << ",Age: " << doctors[i].doctorAge
-            << ",Id: " << doctors[i].doctorID
-            << endl;
+    string getLineCheck;
+
+    doctor_file.seekg(0, ios::beg); // gets file to beginning
+    while(getline(doctor_file, getLineCheck)){
+        if(getLineCheck.empty()){
+            cout << "Sorry no Doctor Available right now.." << endl;
+        }
+        else{
+            cout << getLineCheck;
+        }
     }
+    
 
     if (selectDoctor == SELECT_DOCTOR){
         cout << "Please enter the Doctor ID that you want to visit: ";
@@ -135,7 +175,7 @@ int listDoctor(Doctor doctors[], int lim, int selectDoctor){
     return NO_SELECT;
 }
 
-Doctor addDoctor(int *doctorID){
+Doctor addDoctor(int *doctorID, fstream &doctor_file){
     string name;
     int age;
     string specialty;
@@ -148,12 +188,16 @@ Doctor addDoctor(int *doctorID){
 
     cout << "Enter doctor age: ";
     cin >> age;
+    
+    doctor_file.seekp(0, ios::end); // gets file to ending for write p = write
+    doctor_file << "\n" << name << ", " << specialty << ", " << age << ", " 
+    << (++(*doctorID)) << endl;
 
-    Doctor doctor(name, specialty, age , ++(*doctorID));
+    Doctor doctor(name, specialty, age , (*doctorID));
     return doctor;
 }
 
-Patient addPatient(int *patientID, Doctor doctors[], int lim){
+Patient addPatient(int *patientID, fstream &patient_file, fstream &doctor_file){
     string name;
     int age;
     string illness;
@@ -170,8 +214,12 @@ Patient addPatient(int *patientID, Doctor doctors[], int lim){
     cin >> age;
 
     cout << "Please choose your doctor depending on your illness: " << endl;
-    selectedDoctorID = listDoctor(doctors, lim, SELECT_DOCTOR);
+    selectedDoctorID = listDoctor(SELECT_DOCTOR, doctor_file);
 
-    Patient patient(name, illness, age , ++(*patientID), selectedDoctorID);
+    patient_file.seekp(0, ios::end); // puts file to the end for writing p = write
+    patient_file << "\n" << name << ", " << illness << ", " << age << ", " << (++(*patientID)) << ", "
+    << selectedDoctorID << endl;
+
+    Patient patient(name, illness, age , (*patientID), selectedDoctorID);
     return patient;
 }
