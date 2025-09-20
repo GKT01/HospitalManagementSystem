@@ -17,6 +17,7 @@ Patient addPatient(int *patientID, fstream &patient_file, fstream &doctor_file);
 Doctor addDoctor(int *doctorID, fstream &doctor_file);
 
 void showMyPatients(istream &patient_file, istream &doctor_file);
+void showMyDoctor(istream &patient_file, istream &doctor_file);
 
 int listDoctor(int selectDoctor, istream &doctor_file);
 int RemoveDoctor(Doctor doctors[], int lim, fstream &doctor_file);
@@ -28,6 +29,9 @@ int main(int argc, char** argv){
     int index{};
     int index2{};
 
+    int patientArrayIndex{};
+    int doctorArrayIndex{};
+
     int patientID = 0, doctorID = 0;
 
     Patient patientArray[LIM];
@@ -38,18 +42,23 @@ int main(int argc, char** argv){
 
     while (index != 4){ 
 
-    cout << "Welcome To Hospital, Enter 1 if you are a patient, 2 if you are a doctor,"
-    << "3 if you are Admin, 4 to Quit" 
+    cout << "Welcome To Hospital, Enter 1 if you want to register as patient, 2 if you are a doctor, "
+    << "3 if you are Admin, 4 if you are a already a patient, 5 to Quit" 
     << endl;
     // add see my doctor cauze im the patient
     cin >> index;
 
     switch (index){
     case 1:
-        // Add if loop that if array of patient array is more than 100 it stopts adding until
-        // program restarts (for txt file)
-        patientArray[patientID] = addPatient(&patientID, patient_file, doctor_file);
+        if(patientArrayIndex < LIM){
+            patientArray[patientID] = addPatient(&patientID, patient_file, doctor_file);
+            patientArrayIndex++;
+        }
+        else{
+            cout << "You are out of adding limit. Please restart the program." << endl;
+        }
         break;
+
     case 2:
         showMyPatients(patient_file, doctor_file);
         break;
@@ -59,9 +68,13 @@ int main(int argc, char** argv){
         << ",To exit enter 4" << endl;
         cin >> index2;
         if(index2 == 1){
-            // Add if loop that if array of doctor array is more than 100 it stopts adding until
-            // program restarts (for txt file)
-            doctorArray[doctorID] = addDoctor(&doctorID, doctor_file);
+               if(patientArrayIndex < LIM){
+                    doctorArray[doctorID] = addDoctor(&doctorID, doctor_file);
+                    doctorArrayIndex++;
+                }
+                else{
+                    cout << "You are out of adding limit. Please restart the program." << endl;
+                }
         }
         else if(index == 2){
             int doctor_id_to_remove = RemoveDoctor(doctorArray, LIM, doctor_file);
@@ -80,6 +93,9 @@ int main(int argc, char** argv){
 
         break;
     case 4:
+        showMyDoctor(patient_file, doctor_file);
+        break;
+    case 5:
         cout << "Quitting.."<< endl;
         return 0;
     default:
@@ -90,6 +106,48 @@ int main(int argc, char** argv){
 
 
     return 0;
+}
+
+void showMyDoctor(istream &patient_file, istream &doctor_file){
+    string name;
+    string lineCheck;
+
+    string getPatientName;
+
+    string getID1;
+    string getID2;
+
+    int responsibleDoctorID_int;
+    int myDoctorsID_int;
+
+    
+    cout << "Enter your name: ";
+    getline(cin >> ws, name);
+
+    patient_file.seekg(0, ios::beg);
+    doctor_file.seekg(0, ios::beg);
+
+    while(getline(patient_file, lineCheck)){
+        stringstream getLines(lineCheck);
+        getline(getLines, getPatientName, ',');
+        if(name == getPatientName){
+            while(getline(getLines, getID1, ',')){
+                stringstream(getID1) >> responsibleDoctorID_int; // we have doctors id from patient now
+                break;
+            }
+        }
+    }
+
+    while(getline(doctor_file, lineCheck)){
+        stringstream getLines(lineCheck);
+        while(getline(getLines, getID2, ',')){
+            stringstream(getID2) >> myDoctorsID_int;
+            if(myDoctorsID_int == responsibleDoctorID_int){ // doctor id and patients responsible id equals now
+                cout << "Here is information about your doctor(s): " << endl;
+                cout << lineCheck;
+            }
+        }
+    }
 }
 
 int RemoveDoctor(Doctor doctors[], int lim, fstream &doctor_file){ // change this
@@ -129,7 +187,7 @@ void showMyPatients(istream &patient_file, istream &doctor_file){
             doctorNameCheck = extractLine; // we extract doctors name
 
             while(getline(ss, extractLine, ',')){ // we extracts doctors id, loops for one line because i take only one line
-                stringstream(extractLine) >> doctorIDCheck;
+                stringstream(extractLine) >> doctorIDCheck; // string to int
                 if(doctorName == doctorNameCheck){ 
                     doctorFound = doctorIDCheck;
                     break;
