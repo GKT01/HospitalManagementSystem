@@ -1,1 +1,9 @@
-Goktug Dal, Brain Surgeon, 35, 1
+Goktug Dals, Brain Surgeon, 35,1
+Labubu Uzmus, Anti Cold, 99,2
+Doctor Three, D T, 33,3
+Doctor Four, Four, 4,4
+Doctor Five, Dot F, 555,5
+Doctor Siz, Doc S, 66,6
+Doctor s, s, 7,7
+Doctor E, E, 88,8
+Doctor Nine, Nine, 9,9
