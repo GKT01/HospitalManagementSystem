@@ -13,15 +13,16 @@
 
 using namespace std;
 
-Patient addPatient(int *patientID, fstream &patient_file, fstream &doctor_file);
-Doctor addDoctor(int *doctorID, fstream &doctor_file);
+Patient addPatient(int *patientID, fstream &patient_file, fstream &doctor_file); // Adds Patient
+Doctor addDoctor(int *doctorID, fstream &doctor_file); // Adds Doctor
 
-void showMyPatients(istream &patient_file, istream &doctor_file);
-void showMyDoctor(istream &patient_file, istream &doctor_file);
+void showMyPatients(istream &patient_file, istream &doctor_file); // Shows Patients of a Doctor
+void showMyDoctor(istream &patient_file, istream &doctor_file); // Show Doctor of a Patient
 
 void fixIndexNumbers(istream &patient_file, istream &doctor_file, int* patientID, int* doctorID);
+// Aligns the Index Numbers
 
-int listDoctor(int selectDoctor, istream &doctor_file);
+int listDoctor(int selectDoctor, istream &doctor_file); // Lists All the Doctors
 
 int main(int argc, char** argv){
     fstream patient_file("patient.txt", ios::in | ios::out | ios::app);
@@ -57,6 +58,7 @@ int main(int argc, char** argv){
         if(patientArrayIndex_obj < LIM){
             patientArray[patientArrayIndex_obj] = addPatient(&patientID, patient_file, doctor_file);
             patientArrayIndex_obj++;
+            // Adds Patient
         }
         else{
             cout << "You are out of adding limit. Please restart the program." << endl;
@@ -65,8 +67,10 @@ int main(int argc, char** argv){
 
     case 2:
         showMyPatients(patient_file, doctor_file);
+        //Shows Patient
         break;
     case 3:
+        //Admin Commands
         while( index2 != 3){
         cout << "To add a doctor enter 1, To list doctors enter 2"
         << ",To exit enter 3" << endl;
@@ -75,12 +79,14 @@ int main(int argc, char** argv){
                if(doctorArrayIndex_obj < LIM){
                     doctorArray[doctorArrayIndex_obj] = addDoctor(&doctorID, doctor_file);
                     doctorArrayIndex_obj++;
+                    // Adds Doctor
                 }
                 else{
                     cout << "You are out of adding limit. Please restart the program." << endl;
                 }
         }
         else if(index2 == 2){
+            // Lists Doctors
             listDoctor(NO_SELECT, doctor_file);
         }
         else if (index2 == 3){
@@ -93,6 +99,7 @@ int main(int argc, char** argv){
 
         break;
     case 4:
+        // Show Patients Doctor
         showMyDoctor(patient_file, doctor_file);
         break;
     case 5:
@@ -104,8 +111,8 @@ int main(int argc, char** argv){
     }
     }
 
-    patient_file.close();
-    doctor_file.close();
+    patient_file.close(); // Closes file
+    doctor_file.close(); // Closes file
 
     return 0;
 }
@@ -150,9 +157,9 @@ void showMyDoctor(istream &patient_file, istream &doctor_file){
     patient_file.seekg(0, ios::beg);
     doctor_file.seekg(0, ios::beg);
 
-    while(getline(patient_file, lineCheck)){
+    while(getline(patient_file, lineCheck)){ 
         stringstream getLines(lineCheck);
-        getline(getLines, getPatientName, ',');
+        getline(getLines, getPatientName, ','); // Gets Patients Name
         if(name == getPatientName){
             while(getline(getLines, getID1, ',')){
                 stringstream ss(getID1); // we have doctors id from patient now
@@ -170,7 +177,7 @@ void showMyDoctor(istream &patient_file, istream &doctor_file){
             stringstream ss(getID2);
             int temp;
             if(ss >> temp)
-                myDoctorsID_int = temp;
+                myDoctorsID_int = temp; // Get Doctor ID
             }
         if(myDoctorsID_int == responsibleDoctorID_int){ // doctor id and patients responsible id equals now
             cout << "Here is information about your doctor(s): " << endl;
@@ -212,7 +219,7 @@ void showMyPatients(istream &patient_file, istream &doctor_file){
                 stringstream ss(extractLine);
                 int temp;   // string to int
                 if(ss >> temp)
-                    doctorIDCheck = temp; 
+                    doctorIDCheck = temp; // Get Doctor ID
             }
             if(doctorName == doctorNameCheck){ 
                     doctorFound = doctorIDCheck;
@@ -229,7 +236,7 @@ void showMyPatients(istream &patient_file, istream &doctor_file){
             stringstream ss(extractLine);
             int temp;
             if(ss >> temp)
-                patientResponsibleID = temp;
+                patientResponsibleID = temp; // Get Patient ID
             }
         if(doctorFound == patientResponsibleID){ // check for doctors id and patientResponsibleID
             cout << firstLineCheck << endl;
@@ -253,7 +260,7 @@ int listDoctor(int selectDoctor, istream &doctor_file){
     }
     
 
-    if (selectDoctor == SELECT_DOCTOR){
+    if (selectDoctor == SELECT_DOCTOR){ // Checks for Adding Doctor's ID to a Patient's Information
         cout << "Please enter the Doctor ID that you want to visit: " << endl;
         cin >> i;
 
@@ -282,7 +289,7 @@ Doctor addDoctor(int *doctorID, fstream &doctor_file){
     << (++(*doctorID));
 
     Doctor doctor(name, specialty, age , (*doctorID));
-    return doctor;
+    return doctor; // Returns Doctor Object to Doctor Array
 }
 
 Patient addPatient(int *patientID, fstream &patient_file, fstream &doctor_file){
@@ -311,5 +318,5 @@ Patient addPatient(int *patientID, fstream &patient_file, fstream &doctor_file){
     << selectedDoctorID;
 
     Patient patient(name, illness, age , (*patientID), selectedDoctorID);
-    return patient;
+    return patient; // Returns Patient Object to Patient Array
 }
